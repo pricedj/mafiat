@@ -1,3 +1,4 @@
+ipykernel
 k3d
 matplotlib
 numba==0.55
