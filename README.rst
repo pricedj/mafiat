@@ -8,7 +8,7 @@ Installation
 Mafiat requires python >= 3.9.
 
 1. To utilise the Jupyter notebooks you should clone this repository.
-2. Next it is recommended to create an [Anaconda](https://www.anaconda.com/products/distribution) environment as below:
+2. Next it is recommended to create an `Anaconda <https://www.anaconda.com/products/distribution>`_ environment as below:
 
 .. code:: bash
 
