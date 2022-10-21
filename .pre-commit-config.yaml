@@ -10,4 +10,4 @@ repos:
     rev: v2.5.0
     hooks:
     -   id: reorder-python-imports
-        args: ['--application-directories=apps:mafiat:testing']
+        args: ['--application-directories=mafiat']
