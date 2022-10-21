@@ -1,0 +1,5 @@
+k3d
+matplotlib
+numba
+numpy
+scipy
