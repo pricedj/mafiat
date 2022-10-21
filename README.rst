@@ -15,7 +15,7 @@ Mafiat requires python >= 3.9.
     $ conda create --name mafiat python=3.9
     $ conda activate mafiat
 
-3. Then you can install mafiat and its dependencies as below:
+3. Then you can install mafiat and its dependencies from inside the mafiat folder, as below:
 
 .. code:: bash
 
