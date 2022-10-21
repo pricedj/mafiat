@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 """Functions supporting the plotting of twist results."""
-
 import matplotlib.pyplot as plt
 
 def plot_2d_map(map, crds, cmap='bwr', clim=None, xlim=None, ylim=None, clabel=None, ax=None):
-    
+
     if ax is None:
         _, ax = plt.subplots(figsize=(12, 4))
 

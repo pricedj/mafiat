@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 """Functions for the computation of twist."""
 import math
+
 import numba
 import numba.experimental.jitclass as jitclass
 import numpy as np
-import scipy.constants
 import pysmsh.interpolate.staggered
 import pysmsh.interpolate.trilinear
+import scipy.constants
 
 def calc_vhat(x1, y1, z1, x2, y2, z2):
     """
@@ -22,7 +23,7 @@ def calc_vhat(x1, y1, z1, x2, y2, z2):
 def find_V(axis_crds, fl_crds, Bhat, interval, rotsens):
     """
     Find the points from fl_crds closest to the normal of each point of axis_crds.
-    
+
     Parameters
     ----------
     axis_crds : (3,X) list of floats
@@ -51,8 +52,8 @@ def find_V(axis_crds, fl_crds, Bhat, interval, rotsens):
     -----
     Vhat will be returned as all NaNs if a spike in BdV is detected in the upper
     80% of the axis coordinates. This suggests it matched to the wrong part of the
-    other field line and/or that the input should be adjusted. 
-    
+    other field line and/or that the input should be adjusted.
+
     In general, `fl_crds` should be at a higher resolution than `axis_crds`.
 
     N = the number of field lines.
@@ -128,7 +129,7 @@ def calc_s(fl_crds):
     """
     Calculates the arc length of each point along the field line corresponding to
     the input coordinates fl_crds, compared to the first point.
-    
+
     Parameters
     ----------
     fl_crds : (3,X) list of floats
@@ -159,7 +160,7 @@ def calc_s(fl_crds):
 def calc_dVds(Vhat, s_arc):
     """
     Calculates differencing for Vhat using the 1D coordinates of s_arc.
-    
+
     Parameters
     ----------
     Vhat : (X,3) list of floats
@@ -223,7 +224,7 @@ def calc_dVds(Vhat, s_arc):
 def calc_Tg(Bhat, Vhat, axis_crds, ds_in=None):
     """
     Calculates Tg for the input field line(s) at the input axis.
-    
+
     Parameters
     ----------
     Bhat : (X,3) list of floats
@@ -234,7 +235,7 @@ def calc_Tg(Bhat, Vhat, axis_crds, ds_in=None):
     axis_crds : (3,X) list of floats
         Coordinates of the axis field line.
     ds_in : (X) list of floats, optional
-        The arc length for each point along the axis field line compared to the 
+        The arc length for each point along the axis field line compared to the
         first point defined as 0. Will be computed from `axis_crds` by the calc_s
         function if not provided.
 
@@ -243,14 +244,14 @@ def calc_Tg(Bhat, Vhat, axis_crds, ds_in=None):
     Tg : (N) list of floats
         Tg for the field line corresponding to `Vhat`.
     debugTg : (N,Y) list of floats
-        The contributions of each step along the axis field line to the total 
+        The contributions of each step along the axis field line to the total
         Tg integral.
     VcdVds : (N,Y,3) list of floats
         Vhat cross dV/ds for each index of Vhat used for diagnostic purposes.
 
     Notes
     -----
-    `axis_crds` and `Bhat` must be the same length. `Vhat` may be shorter but it 
+    `axis_crds` and `Bhat` must be the same length. `Vhat` may be shorter but it
     must correspond to `axis_crds` and `Bhat`, with index 0 being a common start.
 
     N = the number of field lines.
@@ -295,16 +296,16 @@ def calc_Tg(Bhat, Vhat, axis_crds, ds_in=None):
 
 @jitclass()
 class TwCompute:
-    
+
     magnetic_field : pysmsh.interpolate.staggered.FaceStaggeredInterpolator
-    current_density : pysmsh.interpolate.trilinear.EdgeStaggeredInterpolator 
-    
+    current_density : pysmsh.interpolate.trilinear.EdgeStaggeredInterpolator
+
     def __init__(self, magnetic_field_interpolator, current_density_interpolator):
         self.magnetic_field = magnetic_field_interpolator
         self.current_density = current_density_interpolator
-    
+
     def compute(self, p):
-        
+
         # Magnetic field vector
         B = self.magnetic_field.value(p)
 
@@ -315,21 +316,21 @@ class TwCompute:
         Bsqr = B[0]**2 + B[1]**2 + B[2]**2
 
         integrand = 0.0
-        
+
         if Bsqr > 0.0:
-            
+
             # Integrand of Tw path integral (ignoring the constant factor mu0/4 pi)
-            #  = J_parallel / |B| = J dot b / |B| = (J dot B) / B^2            
+            #  = J_parallel / |B| = J dot b / |B| = (J dot B) / B^2
             J_dot_B = J[0]*B[0] + J[1]*B[1] + J[2]*B[2]
-            
+
             integrand = J_dot_B/Bsqr
-            
+
         return integrand
 
 @numba.njit()
 def compute_Tw_map(coords1, coords2, coords3, order, b_field_interpolator, tracer, Tw_integrator, lower_boundary):
     """Computes Tw on a 2D plane that intercepts the third axis at the index given.
-    
+
     Input:
     x/y/z_crds: Two must be a coordinate grid, the third must be the index to cut that axis.
     """
@@ -339,7 +340,7 @@ def compute_Tw_map(coords1, coords2, coords3, order, b_field_interpolator, trace
     in_point = np.zeros(3)
 
     list_of_seed_points = list()
-   
+
     for i, x in enumerate(coords1):
         for j, y in enumerate(coords2):
 
@@ -359,11 +360,11 @@ def compute_Tw_map(coords1, coords2, coords3, order, b_field_interpolator, trace
 
             if (start_pt[2] <= lower_boundary) and (end_pt[2] <= lower_boundary):
                 is_closed[i, j] = 1.0
-            
+
             Tw_map[i, j] = Tw1 + Tw2
 
             list_of_seed_points.append(np.copy(in_point))
 
     Tw_map *= scipy.constants.mu_0/(4.0*np.pi)
-                    
+
     return Tw_map, is_closed, list_of_seed_points
