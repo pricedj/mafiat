@@ -1,5 +1,6 @@
 k3d
 matplotlib
-numba
+numba==0.55
 numpy
+pysmsh @ git+https://github.com/jpomoell/pysmsh
 scipy
