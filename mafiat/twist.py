@@ -243,7 +243,7 @@ def calc_Tg(Bhat, Vhat, axis_crds, ds_in=None):
     -------
     Tg : (N) list of floats
         Tg for the field line corresponding to `Vhat`.
-    debugTg : (N,Y) list of floats
+    Tg_comps : (N,Y) list of floats
         The contributions of each step along the axis field line to the total
         Tg integral.
     VcdVds : (N,Y,3) list of floats
