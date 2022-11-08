@@ -21,3 +21,11 @@ Mafiat requires python >= 3.9.
 
     $ pip install .
 
+FAQ / Troubleshooting
+---------------------
+1. If the k3d extension is not working inside of your notebooks you may need to run the following:
+
+.. code:: bash
+
+    $ jupyter nbextension install --py --user k3d
+    $ jupyter nbextension enable --py --user k3d
