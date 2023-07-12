@@ -334,8 +334,11 @@ def compute_Tw_map(coords1, coords2, coords3, order, b_field_interpolator, trace
     Input:
     x/y/z_crds: Two must be a coordinate grid, the third must be the index to cut that axis.
     """
-    Tw_map = np.zeros((len(coords1), len(coords2)))
-    is_closed = np.zeros((len(coords1), len(coords2)))
+    shape = (len(coords1), len(coords2))
+
+    Tw_map = np.zeros(shape)
+    is_closed = np.zeros(shape)
+    Bz = np.zeros(shape)
 
     in_point = np.zeros(3)
 
@@ -347,6 +350,9 @@ def compute_Tw_map(coords1, coords2, coords3, order, b_field_interpolator, trace
             in_point[order[0]] = x
             in_point[order[1]] = y
             in_point[order[2]] = coords3
+
+            B = b_field_interpolator.value(in_point)
+            Bz[i, j] = B[2]
 
             # Trace in the direction of the field.
             tracer.follow_field_direction = True
@@ -367,4 +373,4 @@ def compute_Tw_map(coords1, coords2, coords3, order, b_field_interpolator, trace
 
     Tw_map *= scipy.constants.mu_0/(4.0*np.pi)
 
-    return Tw_map, is_closed, list_of_seed_points
+    return Tw_map, is_closed, list_of_seed_points, Bz
